@@ -9,6 +9,10 @@ RIGHT_BOUNDARY = WIDTH - 40
 
 player = Actor("player", (WIDTH//2, HEIGHT - 40)) # Start and buttom middle
 PLAYER_SPEED = 4
+player_frames = ["player", "player_f"]  # Forward walking frames
+current_frame = 0
+frame_timer = 0
+FRAME_DELAY = 8
 hearts = 3
 score = 0
 
@@ -85,17 +89,24 @@ class Monster:
         screen.draw.filled_circle((self.x, self.y), 15, color)
 
 def update():
-    global hearts, in_main_menu, main_menu_options, in_game, in_game_over, game_over_options, obstacle_speed, timer, score, selected_index
+    global hearts, in_main_menu, main_menu_options, in_game, in_game_over, game_over_options
+    global obstacle_speed, timer, score, selected_index, current_frame, frame_timer
 
-    if in_main_menu:
-        return
-    if in_game_over:
+    if in_main_menu or in_game_over:
         return
 
     if keyboard.left and player.left > LEFT_BOUNDARY:
         player.x -= PLAYER_SPEED
-    if keyboard.right and player.right < RIGHT_BOUNDARY:
+        player.image = "player_left"
+    elif keyboard.right and player.right < RIGHT_BOUNDARY:
         player.x += PLAYER_SPEED
+        player.image = "player_right"
+    else:
+        frame_timer += 1
+        if frame_timer >= FRAME_DELAY:
+            frame_timer = 0
+            current_frame = (current_frame + 1) % len(player_frames)
+        player.image = player_frames[current_frame]
 
     timer += 1
     if timer > 80:  # every 80 frames
